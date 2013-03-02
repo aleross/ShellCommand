@@ -1,0 +1,11 @@
+.idea
+local.properties
+project.properties
+gen
+.iml
+proguard-project.txt
+build.xml
+ant.properties
+out
+bin
+.DS_STORE
