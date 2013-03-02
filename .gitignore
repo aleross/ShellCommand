@@ -2,7 +2,7 @@
 local.properties
 project.properties
 gen
-.iml
+*.iml
 proguard-project.txt
 build.xml
 ant.properties
