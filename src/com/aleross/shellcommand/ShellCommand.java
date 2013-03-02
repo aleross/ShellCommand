@@ -16,10 +16,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ShellCommand {
 
@@ -34,7 +37,7 @@ public class ShellCommand {
     private Future timerTask;
 
     public interface ShellCallback {
-        ArrayList<String> onShellInput(final String command);
+        List<String> onShellInput(final List<Comparable<?>> command);
     }
 
     public ShellCommand(final ShellCallback callback) {
@@ -74,7 +77,8 @@ public class ShellCommand {
                                     reading = false;
                                 } else {
                                     try {
-                                        final ArrayList<String> commandOutput = callback.onShellInput(commandInput);
+                                        final List<Comparable<?>> args = getArguments(commandInput);
+                                        final List<String> commandOutput = callback.onShellInput(args);
                                         dataOutputStream.println("Starting command response.");
                                         for (final String aCommandOutput : commandOutput) {
                                             dataOutputStream.println(aCommandOutput);
@@ -103,6 +107,77 @@ public class ShellCommand {
             }
         });
         socketThread.start();
+    }
+
+    private List<Comparable<?>> getArguments(final String subjectString) {
+        final List<String> matchList = new ArrayList<String>();
+        final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+        final Matcher regexMatcher = regex.matcher(subjectString);
+        while (regexMatcher.find()) {
+            if (regexMatcher.group(1) != null) {
+                // Add double-quoted string without the quotes
+                matchList.add(regexMatcher.group(1));
+            } else if (regexMatcher.group(2) != null) {
+                // Add single-quoted string without the quotes
+                matchList.add(regexMatcher.group(2));
+            } else {
+                // Add unquoted word
+                matchList.add(regexMatcher.group());
+            }
+        }
+        Log.v(TAG, "Found " + matchList.size() + " arguments.");
+        return transformArguments(matchList);
+    }
+
+    private List<Comparable<?>> transformArguments(final List<String> originalArgs) {
+        final List<Comparable<?>> trueArgs = new ArrayList<Comparable<?>>();
+        for (int i = 0; i < originalArgs.size(); i++) {
+            final String arg = originalArgs.get(i);
+            if (isInt(arg)) {
+                trueArgs.add(i, Integer.parseInt(arg));
+            } else if (isDouble(arg)) {
+                trueArgs.add(i, Double.parseDouble(arg));
+            } else {
+                // Add back in as a string
+                trueArgs.add(i, arg);
+            }
+        }
+        Log.i(TAG, "Transformed " + trueArgs.size() + " args");
+        return trueArgs;
+    }
+
+    private boolean isInt(final String string) {
+        if (string == null) {
+            return false;
+        }
+        int length = string.length();
+        if (length == 0) {
+            return false;
+        }
+        int i = 0;
+        if (string.charAt(0) == '-') {
+            if (length == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < length; i++) {
+            char c = string.charAt(i);
+            if (c <= '/' || c >= ':') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isDouble(final String string) {
+        try {
+            Double.parseDouble(string);
+            return true;
+        }
+        catch(NumberFormatException e) {
+            return false;
+        }
     }
 
     private void scheduleTimer() {

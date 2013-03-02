@@ -8,8 +8,8 @@
 
 package com.aleross.shellcommand;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public abstract class ShellResponseFormatter {
 
@@ -24,7 +24,7 @@ public abstract class ShellResponseFormatter {
         return "---- " + sectionName + " ----";
     }
 
-    public static ArrayList<String> formatResponse(final ArrayList<String> response) {
+    public static List<String> formatResponse(final List<String> response) {
         for (int i = 0; i < response.size(); i++) {
             String string = response.get(i);
             final String topic = string.substring(0, 1);

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MyActivity extends Activity {
 
@@ -23,9 +24,9 @@ public class MyActivity extends Activity {
 
     private ShellCommand.ShellCallback shellCallback = new ShellCommand.ShellCallback() {
         @Override
-        public ArrayList<String> onShellInput(final String command) {
-            final ArrayList<String> response = new ArrayList<String>(5);
-            if (("report").equals(command)) { // All checking for command validity has to be done in this callback
+        public List<String> onShellInput(final List<Comparable<?>> args) {
+            final List<String> response = new ArrayList<String>(5);
+            if (("report").equals(args.get(0))) { // All checking for command validity has to be done in this callback
                 response.add("Generating Player Report");
                 response.add(ShellResponseFormatter.formatSectionHeader("Sample Header Level 1")); // Adds --- around header
                 response.add("*Example Header Level 2"); // One * for a header level 2
@@ -33,6 +34,9 @@ public class MyActivity extends Activity {
                 response.add("Example unformatted response.");
             } else {
                 response.add("Invalid command. Try using 'report'.");
+            }
+            if (args.get(0) == Integer.valueOf(1)) {
+                response.add("Wow!!");
             }
             return ShellResponseFormatter.formatResponse(response);
         }
