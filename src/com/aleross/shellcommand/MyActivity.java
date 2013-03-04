@@ -10,6 +10,8 @@ public class MyActivity extends Activity {
 
     private static final int SHELL_PORT = 8100;
 
+    private ShellCommand shellCommand;
+
     /**
      * Called when the activity is first created.
      */
@@ -18,8 +20,14 @@ public class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        final ShellCommand shellCommand = new ShellCommand(shellCallback);
+        shellCommand = new ShellCommand(shellCallback);
         shellCommand.listen(SHELL_PORT); // Open the socket, listen for commands
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        shellCommand.stop();
     }
 
     private ShellCommand.ShellCallback shellCallback = new ShellCommand.ShellCallback() {
