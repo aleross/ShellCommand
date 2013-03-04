@@ -17,10 +17,7 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +35,17 @@ public class ShellCommand {
 
     public interface ShellCallback {
         List<String> onShellInput(final List<Comparable<?>> command);
+    }
+
+    private class TimerThreadFactory implements ThreadFactory {
+        private int counter;
+        private static final String prefix = "shell-command-timer";
+        @Override
+        public Thread newThread(final Runnable r) {
+            final Thread newThread = new Thread(r, prefix + '-' + counter);
+            counter++;
+            return newThread;
+        }
     }
 
     public ShellCommand(final ShellCallback callback) {
@@ -182,7 +190,7 @@ public class ShellCommand {
 
     private void scheduleTimer() {
         Log.i(TAG, "Scheduling timer to make sure ShellCommand socket stays open.");
-        scheduledTaskExecutor = Executors.newSingleThreadScheduledExecutor();
+        scheduledTaskExecutor = Executors.newSingleThreadScheduledExecutor(new TimerThreadFactory());
         timerTask = scheduledTaskExecutor.scheduleAtFixedRate(statusCheck, 0L, 1L, TimeUnit.MINUTES);
     }
 

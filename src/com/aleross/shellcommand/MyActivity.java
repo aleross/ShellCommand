@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MyActivity extends Activity {
 
-    private static final int SHELL_PORT = 8000;
+    private static final int SHELL_PORT = 8100;
 
     /**
      * Called when the activity is first created.
