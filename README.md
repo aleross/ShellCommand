@@ -31,6 +31,7 @@ You can find your emulator's device name by using
     ./adb devices.
     
 If ShellCommand stops and you need to restart it remotely, you can broadcast an Intent with an optional port as an extra. Example:
+
     am broadcast -a com.aleross.shellcommand.START -e PORT 8002    
     
 <h3>Requirements</h3>
