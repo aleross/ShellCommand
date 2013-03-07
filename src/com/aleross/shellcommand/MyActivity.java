@@ -1,6 +1,7 @@
 package com.aleross.shellcommand;
 
 import android.app.Activity;
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import java.util.ArrayList;
@@ -22,6 +23,10 @@ public class MyActivity extends Activity {
 
         shellCommand = new ShellCommand(shellCallback);
         shellCommand.listen(SHELL_PORT); // Open the socket, listen for commands
+
+        // Schedule intent receiver for restarting via Intent sent from the command line
+        final IntentFilter filter = new IntentFilter("com.aleross.shellcommand.START");
+        registerReceiver(shellCommand.startReceiver, filter);
     }
 
     @Override
@@ -49,5 +54,4 @@ public class MyActivity extends Activity {
             return ShellResponseFormatter.formatResponse(response);
         }
     };
-
 }

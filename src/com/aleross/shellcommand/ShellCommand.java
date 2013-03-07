@@ -8,6 +8,9 @@
 
 package com.aleross.shellcommand;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -32,6 +35,7 @@ public class ShellCommand {
     private static final String EXIT_CODE = "exit";
     private ScheduledExecutorService scheduledTaskExecutor;
     private Future timerTask;
+    private static final int DEFAULT_PORT = 8000;
 
     public interface ShellCallback {
         List<String> onShellInput(final List<Comparable<?>> command);
@@ -208,6 +212,28 @@ public class ShellCommand {
             } catch (Exception e) {
                 Log.e(TAG, "Encountered an error while checking whether the Command reader socket is open.", e);
             }
+        }
+    };
+
+    private static final String EXTRA_PORT = "PORT";
+
+    public BroadcastReceiver startReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            Log.i(TAG, "Received request to start Shell Command socket.");
+            int newPort = DEFAULT_PORT;
+            if (intent.hasExtra(EXTRA_PORT)) {
+                final String portString = intent.getStringExtra(EXTRA_PORT);
+                try {
+                    newPort = Integer.parseInt(portString);
+                    Log.i(TAG, "Request specified port " + newPort);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Could not parse port into a string", e);
+                    newPort = DEFAULT_PORT;
+                }
+                Log.i(TAG, "Request specified port " + newPort);
+            }
+            listen(newPort);
         }
     };
 

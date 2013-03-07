@@ -17,6 +17,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="com.aleross.shellcommand.START"/>
             </intent-filter>
         </activity>
     </application>
